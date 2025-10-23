@@ -23,36 +23,54 @@ The filters used are median_filter for removing noise from the image, The histog
 
 Prerequisites for running the code are:
 
-Python =3.5<br/>
-python-opencv =4.2.0<br/>
-scipy =1.3.1<br/>
+Python >=3.8  
+opencv-python >=4.5  
+scipy >=1.8  
+numpy >=1.20  
+streamlit >=1.38 *(solo si se usa la interfaz web)*
 
-or
+Instalación rápida:
 
-```
-pip install opencv-python
-```
-```
-pip install scipy
+```bash
+pip install opencv-python scipy numpy streamlit
 ```
 
 ## Features
 
-- Denoise a grayscale image with median_filter
-- Clahe is used for Histogram equalization of the image
-- Enhances Sharpness and Contrast of images
-- Gamma Correction for preventing darkening of images.
+- Pipeline modular que realza luminancia preservando el color en espacio LAB.
+- Filtro mediano + bilateral (configurable) para reducir ruido sin perder bordes.
+- CLAHE y corrección gamma personalizable para mejorar contraste y brillo.
+- Máscara de realce (unsharp) opcional para recuperar nitidez.
+- Interfaz CLI configurable y aplicación web (Streamlit) para pruebas rápidas.
 
 ## Usage
 
-Inside the project's directory run:
+### CLI
 
-```
-python image_enhancement.py
-```
-You can find sample images in the Dataset folder and results can be generated in Results folder.
+Dentro del directorio del proyecto ejecuta:
 
-These code works better for gray scale images.
+```bash
+python image_enhancement.py --input Dataset --output Results
+```
+
+Argumentos más útiles:
+
+- `--gamma 1.2` ajusta el brillo global.
+- `--no-color` fuerza salida en escala de grises.
+- `--no-sharpen` desactiva el realce de nitidez.
+- `--log-level DEBUG` muestra más información del proceso.
+
+El script acepta un archivo individual (`--input path/a/imagen.jpg`) o una carpeta completa.
+
+### Interfaz web
+
+Si prefieres previsualizar resultados, lanza:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Esto abrirá una interfaz en el navegador donde puedes subir imágenes, ajustar parámetros con sliders y descargar la versión mejorada.
 
 ### Results
 ### Original Image
