@@ -1,120 +1,115 @@
-# Image enhancement using openCV
+# Image Enhancement using OpenCV
 
-An image enhancement module used for improving the quality of images using different filters in openCV. 
-It works better with gray-scale images. 
+Proyecto del Grupo 2 para mejorar imágenes utilizando OpenCV, SciPy y una interfaz web en Streamlit.
+Incluye un pipeline modular reutilizable, CLI configurable y una app web para previsualizar resultados.
 
-The filters used are median_filter for removing noise from the image, The histogram equalizer is used for contrast adjustment of the image and Gamma correction is also applied for preventing the image from darkening.
+## Tabla de contenidos
+- [Resumen](#resumen)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Uso](#uso)
+  - [CLI](#cli)
+  - [Interfaz web Streamlit](#interfaz-web-streamlit)
+- [Resultados de ejemplo](#resultados-de-ejemplo)
+- [Créditos](#créditos)
+- [Licencia](#licencia)
 
-## Table of contents
-
-- [Getting started](#getting-started)
-- [Features](#features)
-- [Usage](#usage)
-- [Results](#results)
-- [Want to Contribute?](#want-to-contribute)
-- [Need Help / Support?](#need-help)
-- [Collection of Other Components](#collection-of-components)
-- [Changelog](#changelog)
-- [Credits](#credits)
-- [License](#license)
-- [Keywords](#Keywords)
-
-## Getting started
-
-Prerequisites for running the code are:
-
-Python >=3.8  
-opencv-python >=4.5  
-scipy >=1.8  
-numpy >=1.20  
-streamlit >=1.38 *(solo si se usa la interfaz web)*
-
-Instalación rápida:
-
-```bash
-pip install opencv-python scipy numpy streamlit
-```
-
-## Features
-
-- Pipeline modular que realza luminancia preservando el color en espacio LAB.
-- Filtro mediano + bilateral (configurable) para reducir ruido sin perder bordes.
-- CLAHE y corrección gamma personalizable para mejorar contraste y brillo.
+## Resumen
+- Pipeline que trabaja en espacio LAB para preservar color mientras realza luminancia.
+- Filtros medianos y bilaterales configurables para reducción de ruido sin sacrificar bordes.
+- CLAHE y corrección gamma ajustables para controlar contraste y brillo.
 - Máscara de realce (unsharp) opcional para recuperar nitidez.
-- Interfaz CLI configurable y aplicación web (Streamlit) para pruebas rápidas.
+- CLI con argumentos para procesar carpetas completas o imágenes individuales.
+- Interfaz web (Streamlit) con sliders interactivos, comparación lado a lado y descarga directa.
+- Página adicional en la app web que lista dinámicamente los aportes y mejoras del proyecto.
 
-## Usage
+## Requisitos
+- Python 3.8 o superior.
+- Windows, macOS o Linux con soporte para OpenCV.
+
+## Instalación
+
+> Recomendado: trabajar dentro de un entorno virtual (venv) para aislar dependencias.
+
+1. Clona el repositorio y entra a la carpeta del proyecto:
+   ```bash
+   git clone <url-del-repo>
+   cd AIML-Image-Enhancement
+   ```
+
+2. Crea y activa un entorno virtual:
+   - **Windows (PowerShell):**
+     ```bash
+     python -m venv .venv
+     .\.venv\Scripts\Activate
+     ```
+   - **macOS / Linux (bash/zsh):**
+     ```bash
+     python3 -m venv .venv
+     source .venv/bin/activate
+     ```
+
+3. Instala las dependencias básicas (CLI) o completas (CLI + Streamlit):
+
+   ```bash
+   pip install --upgrade pip
+   pip install opencv-python scipy numpy
+   # Para la app web añade:
+   pip install streamlit
+   ```
+
+   > Sugerencia: crea un `requirements.txt` con estas dependencias para instalar todo con `pip install -r requirements.txt`.
+
+4. (Opcional) Si usarás imágenes grandes, instala OpenCV contrib y habilita paquetes de optimización:
+   ```bash
+   pip install opencv-contrib-python
+   ```
+
+## Uso
 
 ### CLI
 
-Dentro del directorio del proyecto ejecuta:
-
+Procesa una carpeta completa (por defecto `Dataset`) y guarda resultados en `Results`:
 ```bash
 python image_enhancement.py --input Dataset --output Results
 ```
 
-Argumentos más útiles:
-
-- `--gamma 1.2` ajusta el brillo global.
+Argumentos útiles:
+- `--gamma 1.2` ajusta el brillo global (default `1.4`).
 - `--no-color` fuerza salida en escala de grises.
-- `--no-sharpen` desactiva el realce de nitidez.
-- `--log-level DEBUG` muestra más información del proceso.
+- `--no-sharpen` desactiva la máscara de realce.
+- `--log-level DEBUG` aumenta la verbosidad.
 
-El script acepta un archivo individual (`--input path/a/imagen.jpg`) o una carpeta completa.
+También puedes procesar un archivo específico:
+```bash
+python image_enhancement.py --input Dataset/imagen.jpg --output Results
+```
 
-### Interfaz web
+### Interfaz web Streamlit
 
-Si prefieres previsualizar resultados, lanza:
-
+Lanza la aplicación web con dos páginas (laboratorio y aportes):
 ```bash
 streamlit run streamlit_app.py
 ```
 
-Esto abrirá una interfaz en el navegador donde puedes subir imágenes, ajustar parámetros con sliders y descargar la versión mejorada.
+En el navegador podrás:
+- Subir una imagen y ajustar parámetros mediante sliders.
+- Comparar original vs. mejorada lado a lado.
+- Descargar la imagen resultante en PNG.
+- Ver un resumen dinámico de las contribuciones del equipo.
 
-### Results
-### Original Image
-<img src="images/image1.jpg" width = "300" height = "225"/> <img src="images/image2.jpg" width = "300" height = "225"/>
+## Resultados de ejemplo
 
-### Processed Image
-<img src="images/result1.jpg" width = "300" height = "225"/> <img src="images/result2.jpg" width = "300" height = "225"/>
+| Original | Procesada |
+|---|---|
+| ![Original 1](images/image1.jpg) | ![Resultado 1](Results/image1.jpg) |
+| ![Original 2](images/image2.jpg) | ![Resultado 2](Results/image2.jpg) |
 
-## Want to Contribute?
+(Actualiza estas imágenes con tus propios resultados si lo deseas.)  
 
-- Created something awesome, made this code better, added some functionality, or whatever (this is the hardest part).
-- [Fork it](http://help.github.com/forking/).
-- Create new branch to contribute your changes.
-- Commit all your changes to your branch.
-- Submit a [pull request](http://help.github.com/pull-requests/).
+## Créditos
+- Basado en técnicas clásicas de OpenCV y SciPy.
+- Mejoras y documentación por el Grupo 2: Alejandro Martinez, Giovana Marachi, Yamili Acosta y Pedro Florenciano.
 
------
-
-## Need Help? 
-
-We also provide a free, basic support for all users who want to use image processing techniques for their projects. In case you want to customize this image enhancement technique for your development needs, then feel free to contact our [AI/ML developers](https://www.weblineindia.com/ai-ml-dl-development.html).
-
------
-
-## Collection of Components
-
-We have built many other components and free resources for software development in various programming languages. Kindly click here to view our [Free Resources for Software Development](https://www.weblineindia.com/communities.html).
-
-------
-
-## Changelog
-
-Detailed changes for each release are documented in [CHANGELOG.md](./CHANGELOG.md).
-
-## Credits
-
-Refered OpenCV image processing and filtering techniques.  [opencv](https://docs.opencv.org/3.4/index.html).
-
-## License
-
-[MIT](LICENSE)
-
-[mit]: https://github.com/miguelmota/is-valid-domain/blob/e48e90f3ecd55431bbdba950eea013c2072d2fac/LICENSE
-
-## Keywords
-
- image-processing, image-filters, image-enhancement-opencv,opencv-image-processing,image-denoising,histogram-equalizer
+## Licencia
+Distribuido bajo la licencia [MIT](LICENSE). Presenta los créditos originales y respeta los términos indicados.
