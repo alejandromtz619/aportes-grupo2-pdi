@@ -22,10 +22,12 @@ Incluye un pipeline modular reutilizable, CLI configurable y una app web para pr
 - CLI con argumentos para procesar carpetas completas o imágenes individuales.
 - Interfaz web (Streamlit) con sliders interactivos, comparación lado a lado y descarga directa.
 - Página adicional en la app web que lista dinámicamente los aportes y mejoras del proyecto.
+- Botón demo que activa Restormer (transformer) con controles de nitidez y mezcla para comparar un modelo avanzado con el pipeline clásico.
 
 ## Requisitos
 - Python 3.8 o superior.
 - Windows, macOS o Linux con soporte para OpenCV.
+- (Opcional) PyTorch 1.12+ para habilitar el modo Restormer en la interfaz web.
 
 ## Instalación
 
@@ -42,6 +44,7 @@ Incluye un pipeline modular reutilizable, CLI configurable y una app web para pr
      ```bash
      python -m venv .venv
      .\.venv\Scripts\Activate
+     venv\Scripts\activate
      ```
    - **macOS / Linux (bash/zsh):**
      ```bash
@@ -56,6 +59,9 @@ Incluye un pipeline modular reutilizable, CLI configurable y una app web para pr
    pip install opencv-python scipy numpy
    # Para la app web añade:
    pip install streamlit
+   # Para el modo Restormer (CPU) añade PyTorch:
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+   pip install scipy
    ```
 
    > Sugerencia: crea un `requirements.txt` con estas dependencias para instalar todo con `pip install -r requirements.txt`.
@@ -97,6 +103,7 @@ En el navegador podrás:
 - Comparar original vs. mejorada lado a lado.
 - Descargar la imagen resultante en PNG.
 - Ver un resumen dinámico de las contribuciones del equipo.
+- Activar el botón "Restormer (demo)" para ejecutar un modelo transformer preentrenado, ajustar un realce extra y mezclar su salida con el pipeline clásico (descarga ~100 MB la primera vez).
 
 ## Resultados de ejemplo
 

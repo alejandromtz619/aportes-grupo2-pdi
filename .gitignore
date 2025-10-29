@@ -3,3 +3,4 @@ _pycache__/
 env/
 *.pyc
 results/.jpg
+models/

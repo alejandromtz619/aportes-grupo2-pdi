@@ -15,6 +15,11 @@ import numpy as np
 import streamlit as st
 
 from image_enhancement import EnhancementConfig, enhance_image_array
+from restormer_inference import (
+    RestormerUnavailableError,
+    apply_restormer,
+    restormer_is_available,
+)
 
 # Configuracion inicial de la pagina Streamlit.
 st.set_page_config(page_title="Image Enhancement", layout="wide")
@@ -105,6 +110,44 @@ def _render_enhancement_page() -> None:
     sharpen_amount = st.sidebar.slider("Intensidad de realce (unsharp)", 0.0, 2.0, 1.1, 0.1)
     sharpen_sigma = st.sidebar.slider("Sigma del desenfoque (unsharp)", 0.1, 3.0, 1.0, 0.1)
     process_in_color = st.sidebar.checkbox("Conservar color (espacio LAB)", value=True)
+    st.sidebar.markdown("---")
+    st.sidebar.header("Modelos avanzados")
+    restormer_enabled = st.sidebar.checkbox(
+        "Activar Restormer (demo)",
+        value=False,
+        help="Ejecuta un modelo transformer preentrenado (descarga ~100 MB la primera vez).",
+    )
+    restormer_status = st.sidebar.empty()
+    if restormer_enabled and not restormer_is_available():
+        restormer_status.info("Instala PyTorch para habilitar Restormer.")
+    restormer_boost = 0.0
+    restormer_sigma = 1.0
+    restormer_blend = 0.0
+    if restormer_enabled:
+        restormer_boost = st.sidebar.slider(
+            "Realce extra Restormer",
+            0.0,
+            1.5,
+            0.4,
+            0.05,
+            help="Aplica un realce tipo unsharp tras Restormer.",
+        )
+        restormer_sigma = st.sidebar.slider(
+            "Sigma realce Restormer",
+            0.3,
+            2.5,
+            1.0,
+            0.1,
+            help="Controla el desenfoque usado en el realce adicional.",
+        )
+        restormer_blend = st.sidebar.slider(
+            "Mezcla con pipeline clásico",
+            0.0,
+            1.0,
+            0.3,
+            0.05,
+            help="0: solo Restormer, 1: solo pipeline clásico.",
+        )
 
     uploaded_file = st.file_uploader(
         "Selecciona una imagen",
@@ -134,14 +177,53 @@ def _render_enhancement_page() -> None:
     )
 
     enhanced_image = enhance_image_array(image, config)
+    restormer_image = None
+    restormer_error = None
 
-    col1, col2 = st.columns(2)
+    if restormer_enabled and restormer_is_available():
+        with st.spinner("Ejecutando Restormer (la primera vez puede tardar)..."):
+            try:
+                restormer_image = apply_restormer(
+                    image,
+                    boost_amount=restormer_boost,
+                    boost_sigma=restormer_sigma,
+                )
+                if restormer_blend > 0:
+                    restormer_image = cv2.addWeighted(
+                        restormer_image.astype(np.float32),
+                        1.0 - restormer_blend,
+                        enhanced_image.astype(np.float32),
+                        restormer_blend,
+                        0.0,
+                    ).astype(np.uint8)
+                restormer_status.success("Restormer activo.")
+            except RestormerUnavailableError as exc:
+                restormer_error = str(exc)
+                restormer_status.error(restormer_error)
+            except Exception as exc:  # pylint: disable=broad-except
+                restormer_error = f"Error al ejecutar Restormer: {exc}"
+                restormer_status.error(restormer_error)
+    elif restormer_enabled:
+        restormer_error = "No se pudo habilitar Restormer. Revisa la instalacion de PyTorch."
+
+    if restormer_image is not None:
+        col1, col2, col3 = st.columns(3)
+    else:
+        col1, col2 = st.columns(2)
+        col3 = None
+
     with col1:
         st.subheader("Original")
-        st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), use_column_width=True)
+        st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), use_container_width=True)
     with col2:
         st.subheader("Mejorada")
-        st.image(cv2.cvtColor(enhanced_image, cv2.COLOR_BGR2RGB), use_column_width=True)
+        st.image(cv2.cvtColor(enhanced_image, cv2.COLOR_BGR2RGB), use_container_width=True)
+    if col3 is not None:
+        with col3:
+            st.subheader("Restormer (demo)")
+            st.image(cv2.cvtColor(restormer_image, cv2.COLOR_BGR2RGB), use_container_width=True)
+    if restormer_error:
+        st.warning(restormer_error)
 
     buffer = _bytes_from_image(enhanced_image)
     st.download_button(
@@ -150,6 +232,14 @@ def _render_enhancement_page() -> None:
         file_name="enhanced.png",
         mime="image/png",
     )
+    if restormer_image is not None:
+        restormer_buffer = _bytes_from_image(restormer_image)
+        st.download_button(
+            "Descargar Restormer (PNG)",
+            data=restormer_buffer,
+            file_name="restormer.png",
+            mime="image/png",
+        )
 
 
 def _render_contributions_page() -> None:
